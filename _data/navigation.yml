@@ -1,0 +1,10 @@
+# main links
+main:
+  - title: "codes"
+    url: /categories/codes/
+  - title: "Sample Posts"
+    url: /year-archive/
+  - title: "Sample Collections"
+    url: /collection-archive/
+  - title: "stock"
+    url: /categories/stock/

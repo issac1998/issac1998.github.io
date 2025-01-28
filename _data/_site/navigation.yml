@@ -1,0 +1,16 @@
+
+# main links
+main:
+  - title: "All"
+    url: /categories/
+  - title: "codes"
+    url: /categories/codes/
+  - title: "notes"
+    url: /categories/notes/
+
+  - title: "Sample Posts"
+    url: /year-archive/
+  # - title: "Sample Collections"
+  #   url: /collection-archive/
+  # - title: "Sitemap"
+  #   url: /sitemap/
