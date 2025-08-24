@@ -1,0 +1,241 @@
+---
+title:  "GMP "
+search: true
+categories:
+  - Jekyll
+  - Go
+  - codes
+  - src
+last_modified_at: 2025-07-01T03:06:00-05:00
+---
+这篇文章介绍GO的栈管理，栈的四种基本操作如图所示，包含新建、清除、增长和收缩
+![栈操作](/assets/images/stack1.png)
+栈分配及回收逻辑如图所示
+
+![执行逻辑](/assets/images/stack2.png)
+- [stackAlloc](#stackalloc)
+  - [stackcachererefill](#stackcachererefill)
+  - [stackpoolalloc](#stackpoolalloc)
+  - [栈的新建](#栈的新建)
+  - [栈增长](#栈增长)
+    - [跳过检查](#跳过检查)
+    - [检查](#检查)
+    - [增长：moreStack](#增长morestack)
+      - [抢占](#抢占)
+      - [执行增长](#执行增长)
+    - [CopyStack](#copystack)
+  - [栈收缩](#栈收缩)
+  - [栈释放](#栈释放)
+    - [gfput](#gfput)
+    - [stackFree](#stackfree)
+    - [stackpoolfree](#stackpoolfree)
+      - [对应小栈](#对应小栈)
+      - [大栈](#大栈)
+- [疑问](#疑问)
+  - [GC也是调用gdestroy回收内存的吗？](#gc也是调用gdestroy回收内存的吗)
+
+
+
+
+# stackAlloc
+
+栈分配的入口是stackAlloc函数，根据入参需要的空间大小将分配区分为小栈和大栈
+
+1.小栈(<32K)优先于mcache 分配
+2\4\8\16 K的栈分别有不同的fixed-size free-list allocator，优先从mcache的stackcache中分配
+
+如果对应大小的 stackcache 获取不到，那么调用 **stackcacherefill** ，stackcacherefill调用**stackpooalloc**从堆上申请一批32KB的内存空间，再切分成多个栈段填充到stackcache中。
+
+例外情况不走cache，直接从global pool拿： 
+a.thisg.m.p == 0，发生在系统调用 exitsyscall 或改变 P 的个数 procresize 时，这种情况拿不到P的cache
+b.thisg.m.preemptoff != ""，发生在GC 时，这种情况cache可能会被并发更改
+
+
+2.大栈从堆上分配，也是首先尝试从大栈的cache：**stackLarge.free[log2npage]**分配，这块cache是在stackfree时归还的，不行再调用**allocManual**从堆上分配内存
+
+
+3.在调试时，（godebug.efence 或修改变量stackFromSystem值）调用sysAlloc通过mmap从操作系统内存分配
+
+
+## stackcachererefill 
+会调用 stackpoolalloc 获取一批cache的stack，然后放入到 stackcache 数组中。
+
+## stackpoolalloc
+ 首先尝试从stackpool[order].item.span获取，这个span是在stackpoolfree时归还的，如果不行，再调用mheap.allocManual分配一块span，具体如何分配可以看内存一章。获取到span后，sStackAlloc init这段span为stack，并将span
+
+其实最终分配具体空间（不算缓存的话）都是通过allocManul拿到span，执行完后都会调用OsStackAlloc initial这段空间为stack，返回上层
+
+## 栈的新建
+在newproc1时创建新g，以下节选自GMP一章中G的初始化流程
+ > 创建新g:malg调用stackalloc分配栈空间（这里只分配内存空间，例如设置stackguard，stack.hi,stakc.lo，空间分配：小栈从当前P或全局cache中分配，如果栈比较大，会在全局大cache或heap上新建），设置状态为gdead（目的是不让GC scan），将g放入全局G列表。
+
+
+ High Address (newg.stack.hi)
++---------------------------+
+|                           |
+|      Available Stack     |
+|         Space             |
+|                           |
++---------------------------+ <- newg.stackguard0 = newg.stack.lo + stackGuard
+|      Stack Guard          |
+|      (Red Zone)           |
++---------------------------+ <- newg.stack.lo (cleared to 0)
+Low Address
+
+c.初始化栈帧（设置SP，初始化栈帧内容）
+
+High Address (newg.stack.hi)
++---------------------------+
+|                           |
+|      未使用的栈空间        |
+|                           |
++---------------------------+ <- sp (初始栈指针)
+|     初始栈帧              |
+|   (totalSize大小)         |
+|   - 返回地址              |
+|   - 参数空间              |
+|   - LR寄存器值            |
++---------------------------+
+|                           |
+|      剩余栈空间           |
+|                           |
++---------------------------+ <- stackguard0
+|      Stack Guard          |
++---------------------------+ <- newg.stack.lo
+Low Address
+d.设置sched中sp,pc,g等信息
+e.设置父goroutine，go的pc
+f.设置pprod
+g.分配goid，状态为runable
+h.设置race检测
+i.释放m
+
+参数含义	
+    // stackguard0 is the stack pointer compared in the Go stack growth prologue.
+	// It is stack.lo+StackGuard normally, but can be StackPreempt to trigger a preemption.
+	// stackguard1 is the stack pointer compared in the //go:systemstack stack growth prologue.
+	// It is stack.lo+StackGuard on g0 and gsignal stacks.
+	// It is ~0 on other goroutine stacks, to trigger a call to morestackc (and crash).
+
+	stackGuard = stackNosplit + stackSystem + abi.StackSmall
+    stackNosplit是Nosplit函数能够占用的最大空间，stackSystem是系统所占Stack。
+
+	SP、PC类似操作系统SP、PC，但存在sched的gobuf里
+
+## 栈增长
+
+编译器会在函数的头部添加检查代码，检查是否需要增长
+
+### 跳过检查
+当函数处于调用链的叶子节点，且栈帧小于StackSmall字节时，则自动标记为NOSPLIT。另外可以手动打上noSPLIT标签
+
+### 检查
+由汇编函数实现
+
+1.对于frameSize小于stacksmall(128B)的分配，检查SP<=stackguard0，若符合直接插入（因为stackGuard确保了有大于stacksmall的空间）（
+堆栈分割检查后，SP 可以比堆栈保护低 StackSmall 个字节
+），否则call morestack。
+
+2.对于需要frameSize大于StackBig（4k b）的分配，每次都call morestack。
+
+3.对于stackSmall和StackBig之间的分配，按如下条件分配（StackBig的值保证了此时Sp-frameSize 和stackguard-stacksmall都不会underfflow）
+比较stackguard < SP - frame Size+ StackSmall ，若符合则call morestack
+
+### 增长：moreStack
+morestack 设置morebuf保存G的sched信息，做完一些校验，会切换到 G0 调用 runtime·newstack来完成扩容的操作。
+
+
+#### 抢占
+首先执行抢占逻辑，判断是否此G是否是需要被”抢占“的G，若是，则首先判断是否能抢占：
+	// If we're holding locks, mallocing, or preemption is disabled, or P.status!=prunning ,don't preempt。
+
+若不能抢占，把stackguard0设回 gp.stack.lo + stackGuard，并调用gogo恢复执行上下文并重新运行此G
+
+若能抢占，判断gp.preemptShrink 调用shirinkstack，判断preemptStop执行preemptPark，最后调用gopreempt_m(gp) ，Act like goroutine called runtime.Gosched.
+
+#### 执行增长
+
+分配的空间大小：不断翻倍oldSize的值作为newSize，直到够用
+
+特殊情况：stackguard0 ==stackForceMove，（还有除了preempt的用处！这里表示debug时强制move 一个 stack，此时无需增长newsize。顺带看一下stackguard0的其他用途：
+1.StackFork表示线程正在forking，不允许被增长；
+2.stackPoisonMin表示低于此值时不允许被preempt和forceMove）
+
+
+更改G的状态为**GcopyStack**（防止GC扫描Stack），并执行copystack
+
+### CopyStack
+首先调用addScannableStack增加GCController的值，然后调用stackAlloc分配新栈空间
+
+记录老栈的信息,并记录Delta=new.hi-old.hi，方便后续移动空间。
+
+1.调整SudoG中的指针
+
+判断activeStackChans是否为true，因为Channel传递时有可能传递原栈上的参数，若有Chan在waiting，可能导致获取参数时参数地址已经失效了，因此需要，因此需要获取Channel的锁后再调取adjustSudogs。若不为True，可以直接调整adjustsudogs
+
+adjustsudogs遍历g的SudoG列表，如果SudoG中的data element point to stack，则将其指针指向+delta位置.
+
+2.调用memMove copy stack。
+
+3.调整Ctxt，Ctxt可能（？）指向堆上分配的funcval，由GC追踪。等学完GC再回来看吧
+
+4.调整Defers和panics
+
+5.调整gp.Stack,gp.StackGuard0，Sched.s,gp.stktopSp等栈信息
+
+6.将G上的栈引用切换成新栈
+
+7.调用stackFree(old)清理旧栈
+
+
+## 栈收缩
+shrinkStack在两个地方被调用，
+1.gc扫描scanStack时
+2.newStack时，其实此时调用只是因为在上述gc scanStack判断 !isShrinkStackSafe时打了想要shrink的标签，在sync saftshrink the stack at the next sync safe point.
+
+shrinkStack 通过SP判断当前栈是否使用量<1/4,最终也是调用copyStack，但newSize被设置为oldsize/2
+
+## 栈释放
+
+go函数结束，调用gdestroy后，会调用**gfput**将栈放入gfree list
+
+### gfput
+如果栈不是**标准size**(startingStackSize)，则调用stackfree释放g的栈内存，并把G的hi,lo,stackguard都设为0，后续在gfget时重新stackalloc;否则则保留栈内存，
+
+**标准size**指的是g申请栈时的初始栈空间，这个size会由gc根据扫描的栈的平均大小来决定。所以复用G时，初始栈空间的大小是会变的
+
+
+
+### stackFree 
+
+释放栈时，小于32kb的栈，先放回本地缓存mcache.stackcache. 若对应大小的本地缓存（例如4kb的cache）已经超出32KB，则调用stackpoolfree将一部分放进全局缓存stackpool
+类似于stackalloc，当GC或thisg.m.p == 0（系统调用或改变了p的数量时），会直接调用stackpoolfree把栈还给全局池。
+
+### stackpoolfree
+ Adds stack x to the free pool.
+#### 对应小栈
+和stackpoolalloc对应，将stack x放入span的空闲链表manualFreeList，如果s.manualFreeList是从无到有，则将其加入到stackpool[order].item.span中，下次stackpoolalloc就可以找到这个span了
+
+如果此时GC未运行（gcphase == _GCoff），且span没有被分配的object (allocCount==0)，则立即调用osStackFree清空栈，	并调用mheap_.freeManual将span释放回堆
+
+如果GC在运行，则将free delay到gc的末尾以避免 GC 无法正确标记指针
+		// 1) GC starts, scans a SudoG but does not yet mark the SudoG.elem pointer
+		// 2) The stack that pointer points to is copied
+		// 3) The old stack is freed
+		// 4) The containing span is marked free
+		// 5) GC attempts to mark the SudoG.elem pointer. The
+		//    marking fails because the pointer looks like a
+		//    pointer into a free span.
+		//
+		// By not freeing, we prevent step #4 until GC is done.
+#### 大栈
+gcphase == _GCoff时立即调用mheap_.freeManual将span释放回堆
+如果 GC 正在运行，立即将栈 span 返回到堆可能会导致它被重新用作堆 span，这种状态变化会与 GC 产生竞争条件。因此只是将其加入大栈的Cache：stackLarge.free[log2npage]
+
+
+# 疑问
+
+## GC也是调用gdestroy回收内存的吗？
+GC与栈相关逻辑有两个
+1.freeStackSpans清除stackpool[order].item.span中空的stack span以及stackLarge.free中的stack
+2.markrootFreeGStacks时调用stackfree清除dead G（sched.gFree.stack中的G）的span，再将G放入sched.gFree.Nostack
