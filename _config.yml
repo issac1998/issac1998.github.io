@@ -113,9 +113,9 @@ analytics:
 
 # Site Author
 author:
-  name             : "Zhaofeng Pan"
+  name             : "Zhaofeng pan "
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "currently work as a go backend engineer, focusing on storage and looking forward to expanding into other areas."
+  bio              : "寻找非基础架构方向的后端开发岗位，简历地址:https://issac1998.github.io/ekyll/go/codes/src/cv/ 。"
   location         : "Hangzhou"
   links:
     - label: "Website"
