@@ -1,13 +1,370 @@
----
-title:  "CV"
-search: true
-categories:
-  - Jekyll
-  - Go
-  - codes
-  - src
-last_modified_at: 2025-08-03T03:06:00-05:00
----
+<!DOCTYPE html>
+<html>
+<head>
+<title>2025-10-18-cv.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
 <style>
 /* ==================== 现代化简历美化样式 ==================== */
 
@@ -25,7 +382,7 @@ last_modified_at: 2025-08-03T03:06:00-05:00
 
 /* 全局样式优化 */
 .markdown-body, .post-content, article {
-  line-height: 1.5 !important;
+  line-height: 1.4 !important;
   color: var(--cv-text);
 }
 
@@ -164,7 +521,6 @@ span[style*="white-space:nowrap"] {
   }
 }
 </style>
-
 <style>
 /* Solutions 块美化 */
 .solutions {
@@ -191,15 +547,14 @@ span[style*="white-space:nowrap"] {
 }
 
 .solutions-item {
-  margin: 0 0 0.5em 0;
-  line-height: 1.5;
+  margin: 0 0 0.3em 0;
+  line-height: 1.4;
 }
 
 .solutions-item:last-child {
   margin-bottom: 0;
 }
 </style>
-
 <div class="cv-header">
   <div class="cv-contact">
     <div class="cv-name">潘兆丰</div>
@@ -212,10 +567,7 @@ span[style*="white-space:nowrap"] {
     <img src="/Users/a/issac1998.github.io/assets/IMG_8082.JPG" alt="头像">
   </div>
 </div>
-
-
 <div class="cv-section"><div class="cv-section-title">教育经历</div></div>
-
 <div style="display:flex; justify-content:space-between; align-items:center;">
   <strong>浙江大学 硕士 软件工程 </strong>
   <span style="white-space:nowrap;">2021.9–2024.6</span>
@@ -224,87 +576,54 @@ span[style*="white-space:nowrap"] {
   <strong>浙江工业大学 本科 信息与计算科学 </strong>
   <span style="white-space:nowrap;">2017.9–2021.7</span>
 </div>
-
 <div class="cv-section"><div class="cv-section-title">工作经历</div></div>
 <div style="display:flex; justify-content:space-between; align-items:center;">
   <strong>滴滴出行 实习生 基础平台-文件存储 </strong>
   <span style="white-space:nowrap;">2022.11–2024.05</span>
 </div>
-
 <div style="display:flex; justify-content:space-between; align-items:center;">
   <strong>滴滴出行 后端开发工程师 基础平台-文件存储</strong>
   <span style="white-space:nowrap;">2024.07–2025.10</span>
 </div>
-
-<div class="solutions">
-  <div class="solutions-label">部门介绍:</div>
-  <div class="solutions-items">
-    <div class="solutions-item"> 部门产品为分布式文件存储服务，为公司内部部门提供存储能力</div>
-  </div>
-</div>
-
+<p>部门产品为分布式文件存储服务，大致可以分为四个模块: 存储元数据的 Metadata Server (<strong>MS</strong>) 模块，存储数据的 Blob Server (<strong>BS</strong>) 模块，存储集群信息及 topo 结构的 Root Server (<strong>RS</strong>) 以及执行后台任务调度的 Background (<strong>BG</strong>) 模块</p>
 <div style="display:flex; justify-content:space-between; align-items:center;">
   <strong>离线 EC 迁移</strong>
   <span style="white-space:nowrap;">2024.07–2024.10</span>
 </div>
-
+<p>背景: 业务早期阶段，数据由多副本进行冗余存储，存在资源浪费、读取无法条带化（striping）的问题，需要高效并可靠地将数据迁移至 EC（erasure coding，纠删码）存储</p>
 <div class="solutions">
-  <div class="solutions-label">背景:</div>
-  <div class="solutions-items">
-    <div class="solutions-item"> 早期数据由多副本进行冗余存储，存在资源浪费、读取无法条带化的问题，需要高效可靠地将数据迁移至 EC（Erasure Coding，纠删码）存储</div>
-  </div>
-</div>
-
-<div class="solutions">
-  <div class="solutions-label">工作:</div>
+  <div class="solutions-label">主要工作:</div>
   <div class="solutions-items">
     <div class="solutions-item"> 负责开发离线数据迁移模块，按分组粒度将数据从多副本迁移至 EC</div>
   </div>
 </div>
-
 <div class="solutions">
   <div class="solutions-label">挑战:</div>
   <div class="solutions-items">
-    <div class="solutions-item"> 保证单分组十亿级别小文件的高效迁移，确保不漏迁、不错迁</div>
+    <div class="solutions-item"> 保证单分组十亿级别小文件的迁移效率，保证不漏迁、错迁</div>
   </div>
 </div>
-
-
 <div class="solutions">
   <div class="solutions-label">解决:</div>
   <div class="solutions-items">
-    <div class="solutions-item"> 采用类似 Map-Reduce 的架构设计迁移模块：多个 Master 将待迁移数据 Hash 至多个 Migrate 中间表，多个 Worker 抢占任务执行迁移</div>
-    <div class="solutions-item"> 将任务拆分为数据上传、校验、元数据更新等流水线阶段，提高并发与吞吐率的同时保证正确性</div>
+    <div class="solutions-item"> 采用类似 Map-Reduce 的架构设计迁移模块（多个 Master 将待迁移数据 Hash 至多个 Migrate 中间表，多个 Worker 抢占任务执行迁移）</div>
+    <div class="solutions-item"> 任务拆分为数据上传、校验、元数据更新等流水线，以提高并发与吞吐率同时保证正确性</div>
   </div>
 </div>
-
-<div class="solutions">
-  <div class="solutions-label">思考:</div>
-  <div class="solutions-items">
-    <div class="solutions-item"> 为快速上线，部分功能未完备，例如缺乏前后台限流管理、动态扩缩容与幂等性校验等</div>
-  </div>
-</div>
-
+<p>思考: 为快速上线，部分功能未完备，例如缺乏前后台限流管理、动态扩缩容与幂等性校验等</p>
 <div style="display:flex; justify-content:space-between; align-items:center;">
   <strong>BS2.0 存储引擎</strong>
   <span style="white-space:nowrap;">2025.02–2025.09</span>
 </div>
-
+<p>背景: BS1.0基于小集群设计，每个集群由独立节点管理数据，运维成本高且磁盘利用率低。BS2.0采用大集群设计，所有数据由BG、RS统一管理，并新增了更多数据保障功能</p>
 <div class="solutions">
-  <div class="solutions-label">背景:</div>
+  <div class="solutions-label">主要工作:</div>
   <div class="solutions-items">
-    <div class="solutions-item"> BS 是文件存储底座，负责存储文件二进制数据。老版本基于小集群设计，每个集群由独立节点管理数据，运维成本高且磁盘利用率低。BS2.0 采用大集群设计，所有数据由调度框架 BG 和注册中心 RS 统一管理，并新增了更多数据保障功能</div>
+    <div class="solutions-item"> 设计并开发 BS 后台任务，包含数据校验、数据修复及并发垃圾回收</div>
+    <div class="solutions-item"> 为以上后台任务设计并开发调度框架，包含任务创建/查询/异常任务重启/限流等操作</div>
+    <div class="solutions-item"> 优化 BS2 读写性能，例如内存池及 range-read 的使用</div>
   </div>
 </div>
-
-<div class="solutions">
-  <div class="solutions-label">工作:</div>
-  <div class="solutions-items">
-    <div class="solutions-item"> 设计并开发 BS 后台任务，包含数据正确性任务（数据校验、数据修复）以及并发垃圾回收任务</div>
-    <div class="solutions-item"> 为以上后台任务设计调度框架 BG，包含任务创建、查询、异常任务重启、限流等操作</div>
-  </div>
-</div>
-
 <div class="solutions">
   <div class="solutions-label">挑战:</div>
   <div class="solutions-items">
@@ -313,57 +632,50 @@ span[style*="white-space:nowrap"] {
     <div class="solutions-item"> 实现高效的垃圾回收策略</div>
   </div>
 </div>
-
 <div class="solutions">
   <div class="solutions-label">解决:</div>
   <div class="solutions-items">
     <div class="solutions-item"> 后台任务限流从按磁盘类型的硬限制，演进为独立计算前后台流量、定期扫描自动调整前后台限流比例，同时通过预测前台延迟，在高负载时拒绝后台请求</div>
-    <div class="solutions-item"> 注册中心 RS 通过将数据副本分区的方式减少单次调度处理的数据量，多个 BG 节点通过抢占分区分布式锁获取调度权限，从 RS 拉取集群信息进行检查并生成调度 OP，对应的 BG 执行调度 OP</div>
+    <div class="solutions-item"> RS 通过将数据副本分区的方式减少单次调度处理的数据量，多个 BG 节点抢占分区分布式锁获取权限，从 RS 拉取集群信息进行检查并生成调度 OP</div>
     <div class="solutions-item"> RS 通过 BS 心跳检查副本数是否完整，减轻数据修复过程中 BG 扫描压力</div>
-    <div class="solutions-item"> 垃圾回收阶段进行两阶段回收，尽可能减少对写入的影响</div>
+    <div class="solutions-item"> 垃圾回收阶段进行两阶段回收，尽可能减少对写入的影响，并采用 fallocate 提前释放资源</div>
   </div>
 </div>
-
 <div class="cv-section"><div class="cv-section-title">项目经历</div></div>
-
 <div style="display:flex; justify-content:space-between; align-items:center;">
   <div style="display:flex; gap:8px; align-items:center;">
     <strong>Go实现消息队列</strong>
     <a href="https://github.com/issac1998/go-queue" target="_blank" rel="noopener">https://github.com/issac1998/go-queue</a>
   </div>
-  <span style="white-space:nowrap;">2025.07–至今</span>
+  <span style="white-space:nowrap;">2025.07–2025.10</span>
 </div>
-
 <div class="solutions">
   <div class="solutions-label">项目描述:</div>
   <div class="solutions-items">
-    <div class="solutions-item"> 使用 Go 实现的强一致持久化消息队列，消息通过文件形式落盘，同一 Topic 的不同 Partition 由 Raft Group 管理，持久化在多台机器上</div>
-    <div class="solutions-item"> 由 Controller 负责 Partition 分配与重平衡</div>
-    <div class="solutions-item"> 实现 Exactly-Once、Consumer Group、Dead Letter、延时队列、生产者/消费者事务，同时支持消息压缩与去重等功能</div>
+    <div class="solutions-item"> 使用 Go 实现的强一致持久化消息队列，消息通过文件形式落盘，同一 topic 的不同 partition 由 Raft Group 管理，持久化在多台机器上</div>
+    <div class="solutions-item"> 由 Controller 负责 partition 分配与重平衡</div>
+    <div class="solutions-item"> 实现 Exactly-once、Consumer Group、Dead Letter、延时队列、生产/消费事务，同时支持消息压缩与去重等功能</div>
   </div>
 </div>
-
 <div style="display:flex; justify-content:space-between; align-items:center;">
   <div style="display:flex; gap:8px; align-items:center;">
     <strong>秒杀系统设计</strong>
     <a href="https://github.com/issac1998/mall" target="_blank" rel="noopener">https://github.com/issac1998/mall</a>
   </div>
-  <span style="white-space:nowrap;">2025.09–至今</span>
+  <span style="white-space:nowrap;">2025.09–2025.11</span>
 </div>
-
 <div class="solutions">
   <div class="solutions-label">项目描述:</div>
   <div class="solutions-items">
-    <div class="solutions-item"> 秒杀系统的后端设计，涵盖用户登录、下单、支付场景，实现秒杀库存扣减、订单创建流程</div>
+    <div class="solutions-item"> 秒杀系统的后端设计，涵盖用户登陆、下单、支付场景，实现秒杀库存扣减、订单创建流程</div>
     <div class="solutions-item"> 使用消息队列实现削峰，并通过延时消息实现过期订单的检查</div>
-    <div class="solutions-item"> 实现三种订单库存扣减策略：Redis 预减库存定期同步至 MySQL / Redis 预减库存通过乐观锁扣减 MySQL / 服务器本地缓存预减</div>
-    <div class="solutions-item"> 实现秒杀商品分表策略，将活动分为多个 Shard 以减轻单实例压力</div>
+    <div class="solutions-item"> 实现三种订单库存扣减策略: Redis 预减库存定期同步至 MySQL / Redis 预减库存通过乐观锁扣减 MySQL / 服务器本地缓存预减</div>
+    <div class="solutions-item"> 实现秒杀商品分表策略，将活动分为多个 shard 以减轻单实例压力</div>
     <div class="solutions-item"> 实现本地及基于 Redis 的全局限流，包含用户、IP、活动、总请求量等多个维度</div>
     <div class="solutions-item"> 提供排队、抽奖、限流、报错四种降级策略，后台定期根据活动库存及机器状态选择降级方案</div>
     <div class="solutions-item"> 提供完善的 K6 测试脚本，在容器内对不同方案进行压测</div>
   </div>
 </div>
-
 <style>
 /* Print-only rules: fit to one A4 page and hide site chrome */
 @media print {
@@ -498,3 +810,5 @@ span[style*="white-space:nowrap"] {
 }
 </style>
 
+</body>
+</html>
