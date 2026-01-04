@@ -1,0 +1,184 @@
+---
+title:  "CV"
+search: true
+categories:
+  - Jekyll
+  - Go
+  - codes
+  - src
+last_modified_at: 2025-08-03T03:06:00-05:00
+---
+<table style="width:100%;">
+  <tr>
+    <td style="vertical-align:top; padding-right:20px;">
+
+# XXX
+
+<div>
+  <span>
+    <img src="assets/phone-solid.svg" width="18px"> 15988788890(微信同号)/18868846460
+  </span>
+  ·
+  <span>
+    <img src="assets/envelope-solid.svg" width="18px"> issacpan98@gmail.com
+  </span>
+  ·
+  <span>
+    <img src="assets/images/Snipaste_2025-07-10_23-10-14.png" width="18px"> [CyC2018](https://github.com/issacpan1998)
+  </span>
+  ·
+</div>
+
+```
+</td>
+<td style="width:140px; vertical-align:top; text-align:right;">
+  <!-- 把下面的路径替换成你的头像文件路径。建议 150x150 像素，圆形。 -->
+  <img src="assets/avatar.jpg" alt="头像" style="width:140px; height:140px; object-fit:cover; border-radius:50%; border:2px solid #ddd;">
+</td>
+```
+
+  </tr>
+</table>
+
+##  个人信息
+
+* 男，1998 年出生
+* 求职意向：GO开发工程师(业务方向)
+* 工作经验：1 年
+
+## 教育经历
+
+* 研究生，浙江大学，软件工程，2021.9-2024.6
+* 本科，浙江工业大学，信息与计算科学，2017.9~2021.7
+
+##  工作经历
+* **滴滴出行 实习生 基础平台-文件存储 2022.11 - 2024.05** 
+* **滴滴出行 后端开发工程师 基础平台-文件存储 2024.07 - 2025.10** 
+### 滴滴Orangefs分布式文件系统
+部门产品大致可以分为四个模块：存储元数据的MetaData Server(MS)模块，存储数据的Blob Server(BS)模块，存储集群信息及topo结构的(Root Server)RS以及执行后台任务的Background(BG)模块。
+
+  - 实习期间，主要参与用户管理平台及MDS模块的协助开发
+  - 正式工作期间，开发BG和BS模块，参与了离线EC体系建设，设计全局数据校验
+
+  参与滴滴分布式文件系统及对象存储系统的研发
+  - 参与离线EC模块的迁移
+  - 负责设计BS层面数据迁移及数据修复模块
+  - 负责设计BG模块，调度后台任务
+
+##  项目经历
+ **离线EC迁移** 2024.08-2024.10
+- 背景: 业务早期阶段，数据由多副本进行冗余存储，存在资源浪费、读取无法stripe化的问题，需要高效并可靠地将数据迁移至EC(erasure coding，纠删码)存储。
+- 主要工作：负责开发离线数据迁移模块。由Master扫描元信息库将待迁移数据，Hash至Migrate中间表，Worker抢占任务执行具体迁移。
+- 困难：选型、迁移效率及数据一致性问题。
+- 解决： 采用类似Map-Reduce的架构设计迁移模块。Master负责扫描元数据表，将待迁移数据写入中间表，Worker通过抢占中间表任务执行迁移。迁移时，Worker先将数据上传至目标存储，再校验数据正确性，最后更新元数据表。通过多Worker并发执行提升迁移效率。为保证业务场景下的数据一致性，迁移期间禁写不禁删，先删除数据后删除元数据，减少数据残留风险。
+- 思考： 为了快速上线，许多功能不够完善。例如缺乏前后台任务限流管理、动态扩缩容逻辑，缺乏幂等性校验等等。
+
+困难：
+- 百亿级别小文件迁移效率问题：Master/Worker 如何抢锁、任务如何分配、资源如何控制？
+- Worker 消费速度跟不上，数据库中间表放不下，如何解决？
+- 如何保证不漏迁？对于 TTL 卷等复杂场景如何适配？
+-  数据一致性问题：如何保证迁移过程中数据的一致性和完整性？
+  选型上，考虑到数据量大，采用类似Map-Reduce的架构设计迁移模块。Master负责扫描元数据表，将待迁移数据写入中间表，
+  Worker通过抢占中间表任务执行迁移。Master扫描时，采用分片扫描，每次扫描一部分数据，避免单次扫描时间过长导致Master阻塞。
+  Worker抢占任务时，采用乐观锁机制，减少锁冲突，提高并发度。资源控制上，采用限流机制，控制Worker的并发数量，避免对数据库造成过大压力。
+  数据一致性上，
+
+迁移期间禁写不禁删，由于有多分组，问题不大。
+先删数据后删元数据，有可能会导致迁移过程中数据残留:
+三副本有一个不存在，要重试
+同时有两个worker？
+master可能扫描两次？
+我们是先上传数据，然后在校验阶段才更新目标的fskey吗？对，为了校验源端的CRC是否正确。第一步先把目标fskey保存到中间表，
+第二次校验shard后正确才更新元数据表。
+更新元数据表时，如果元数据表有值，说明已经迁移过一次了，直接删掉目标数据（这里是担心master扫了两次数据，
+迁移了两次(每次shradID不同)产生垃圾，因为数据库没有提供幂等（切换成消息队列可以实现吗？））。
+如果写元数据失败，那我等下一轮重新check。但是，下一轮check时。可能元数据已经写入成功了，这样就没法check了。
+那就只能等下一轮master扫描了。
+确实也出现过这个情况，写元数据超时了返回错误，删除了数据，但数据实际已经写入成功。
+
+* **BS2.0存储引擎** 2024.11-2025.09
+- 背景: BS为存储底座，存储文件真实数据。BS1.0基于小集群设计，每个集群有单独的Master节点管理数据，运维成本高且磁盘利用率低。BS2.0采用大集群设计并新增了更多数据保障功能
+  
+- 主要工作：1.设计并开发数据修复模块，检查数据副本及数据块是否健康    
+-          2.设计并开发GC模块，并发清除垃圾数据
+-          3.设计并开发BG模块，负责调度后台任务
+-          4.优化BS2模块
+- 困难:  1. 任务调度框架的设计，可能存在数十亿个数据副本，如何高效地查询？
+-  ### 对于数据修复
+-        a.BS通过心跳上报拥有的Blob，RS每隔30分钟扫描一次blob（按clusterID区分来扫描），将心跳失联超过一定时间的BS加入unhealthynodes，将副本数不全的blob加入unhealthyblobs，BG扫描这个列表确认，**减少扫描量**。（超过6小时心跳未恢复才会执行修复）
+-        b.全量数据校验，RS每30分钟定期检查所有blob的lastchecktimes，将其加入expiredblobs中，
+         c.BG后台定期为每个Blob检测，**灵活调整后台任务检测时间**
+-       多台BG通过抢占锁的方式成为Leader，执行调度任务。
+-        缺副本：BS上报心跳，RS根据心跳探测是否缺副本（3个心跳周期，摘除可写列表），这里做初步筛选。为了防止短暂的心跳失联，BG只会修复丢失大于12小时的blob
+-          BG将任务注册到RS，过期任务自动重新下发。
+  ### 对于检测
+   1.BS心跳上报，RS更新最后检查时间到内存。
+-  ### 对于GC
+-       定期扫描所有blob，按垃圾率排序（这有优化？）
+-       2. 不同任务之间有优先级，怎么调度？
+-       BS层面cancel，每次循环检测context.Done.
+-       3. 如何做限流，如何取得读写流量和后台流量的均衡，尽可能少影响业务?
+-        一开始采用硬限制，根据不同磁盘类型QPS和BPS限制，但灵活性很差。接着采用了前后台流量区分，前台流量高时限制后台任务写入，但是会导致垃圾清理不及时；于是采用了前后台流量分别统计，并自动化调整前后台限流比例，但是会导致前台写延迟受影响；最后使用qps limiter，根据前台延迟来流量。
+-       3. 开发初期性能不如BS1.0，如何优化？
+-  ### 通用
+-  1.BG层面限制全局任务数量，每种任务在一个集群中的数量有最大值，每个任务在一个节点（一台主机）的数量也有最大值。
+-  2.Blob层面，每个Blob同时只能有一种任务，但可以有高优先级任务。
+
+   ### 流程
+   1.BG按Cluster粒度抢Leader锁（根据Key的hash 写shard粒度的锁，将lease和holder写入底层KV（记得要做双重检查））
+   2.抢到锁后，开启后台任务。每隔10s向RS拉取最新的cluster信息，包含Node信息(后台任务、blob location等)以及unhealthyblobs、unhealthynodes、LastCheckstimer等，存储到BG的topo中(其实和RS的topo大致一样，不过RS的topo是给client用的，BG只关心后台任务相关的信息)
+   3.BG的coordinator模块，会上述topo信息决定决定是否开启后台任务->增加Op->执行op:下发任务至BS
+   2.BS接受任务，做去重（去重同时，根据已有task是否是优先级任务，若比在调用的优先级高，调用cancel。）,通过则加入任务channel。
+   3.BS起多个Worker消费Channel，执行任务，通过心跳上报RS进度。
+
+   ### 心跳
+   心跳上报channel机制，队列满了就直接丢弃，不是每次心跳都上报进度，减少RS压力
+
+   #### client- sdkheartbeat（已经拆分为writable和topo）
+   1.bs client获取topo
+   BS client 10s做一次心跳SDKHeartbeat，更新topo结构，当没有可写卷或出错时，也会紧急做一次sdkheartbeat。
+   (后来改成只拿writable了，因为topo太大。topo是每隔30分钟更新一次)
+   这个topo首先从缓存拿，没有则从RS拿。缓存有过期机制，若过期了，返回过期缓存，但会在后台async做一次最新topo：cas更新isupdate字段，然后通过rstore的heartbeat接口请求最新缓存。
+   如有缓存没有，那么就只能等待请求rstore拿最新topo。
+   2.BS client 创建blob
+    一定要做去重，我们是createblob 每个cluster(一个物理集群，管理一批ec/rep/ttl的blob pool，每个pool内有很多blob)做了去重，用channel做通信，第一个blob创建完成后关闭通道，其他相同的创建blob请求等待这个通道。
+    创建流程是rstore根据rack、机架、机器等信息选出合适的卷，然后调用bs的createblob接口创建blob，单台BS只管创建自己的卷，不感知其他BS上的卷。Put时需要client带上其他副本卷地址。
+    创建只管创建Blob，更新blobpool需要异步来，这是因为更新topo需要上锁，抢锁容易导致createblob超时。更新pool的逻辑很简单，看blob是否可写(<30GB,)，将blob加入可写列表。
+   
+   Rserver有writable 和topo的cache，真正的数据存在rstore。当cache过期（TTL过期）时，正常返回过期数据，但异步更新最新数据。
+   异步更新有几个方式 。1.cache过期2.cache为空。
+   Rstore中的数据定期更新，Rstore也有cache，Writebale每隔10s更新一次，topo每隔30分钟更新一次。
+   #### node- nodeheartbeat
+    BS节点每5s做一次nodeheartbeat，更新节点状态。BS、MS都不关心返回值， 只要能成功发送心跳就行。
+    心跳请求时，带上节点的基本信息，例如磁盘信息，有哪些Blob、正在运行的bg任务等。
+    Rstore收到心跳后，会更新节点状态。
+- 解决: 
+- 思考：初版和最终版本改动非常大，。
+
+* **MDS元存储引擎  2024.05**
+- 背景: 随着元数据量的增长，原有Mysql存储遇到了性能瓶颈，因此需要新的LSM Tree KV架构支持海量数据存储
+- 主要工作: 讨论方案，协助研究
+- 困难:  1. RAFT相关: "串行化"的优化，如何与业务场景适配;
+-        减少RAFT Apply的粒度，将较重的操作放置在RAFT之前。
+-       3. 
+-       
+- 解决: 内存事务前置检查，仅放OP。 Follower Read 
+
+
+* **GO实现消息队列** 
+- 使用GO实现的强一致持久化消息队列，消息通过文件形式落盘，不同Partition作为Multi-Maft的不同Raft Group，持久化在多台机器上。
+- 由Controller进行Partition的分配和重平衡。
+- 实现Exact-once、Counsumer Group、Dead Letter、生产/消费事务，同时支持消息压缩、去重等功能
+
+* **GO实现消息队列**
+- API侧：
+- 提升 Redis / DB / HTTP 连接池与 worker 并发度
+- 核心路径使用 pipeline/batch 降低RTT
+- 降低非关键日志与JSON序列化开销
+- Redis侧：
+- 集群读优化（从节点只读：需按一致性场景谨慎开启）
+- 调整 tcp-keepalive、client-output-buffer-limit 以适配峰值
+- 统一Lua脚本进行原子扣减与队列入库，减少热点key争用
+- 队列/订单：
+- 缩短订单生成链路，提高消费并行度
+- 轮询策略加入指数退避或服务端推送，降低轮询请求占比

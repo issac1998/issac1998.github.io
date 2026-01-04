@@ -1,0 +1,37 @@
+<style>
+/* Print overrides: 放在 head 的最后以覆盖主题或其他样式 */
+@media print {
+  /* 确保使用 A4 并尽量减少边距 */
+  @page { size: A4; margin: 3mm 5mm !important; }
+
+  /* 基础字号调整（使用 !important 覆盖主题样式） */
+  html, body {
+    font-size: 13px !important;
+    line-height: 1.18 !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* 内容区域最大化 */
+  .page, .page__content, .post, .post-content, .container, main, .initial-content {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 局部放大以填充空白 */
+  .cv-name { font-size: 20px !important; }
+  .cv-contact > div:not(.cv-name) { font-size: 11px !important; }
+  .cv-section-title { font-size: 13px !important; }
+  .solutions-item { font-size: 11px !important; margin-bottom: 0.12em !important; }
+
+  /* 避免在关键块内分页 */
+  .cv-section, .solutions, .initial-content, .post-content { page-break-inside: avoid !important; }
+
+  /* 不显示站点 chrome（若主题没有处理） */
+  .masthead, .page__hero, .breadcrumbs, .page__meta, .page__related, .pagination, .sidebar, .author, .page__footer, .site-footer, .footer, .skip-links {
+    display: none !important;
+  }
+}
+</style>

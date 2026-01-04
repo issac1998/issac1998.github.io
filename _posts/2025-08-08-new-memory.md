@@ -80,7 +80,7 @@ Golang 借鉴操作系统分页管理的思想，每个最小的存储单元也�
 ## mspan -Golang 内存管理的最小单元
 mheap 负责将连续页组装成 mspan。mspan 大小是 page 的整数倍（Go 中的 page 大小为 8KB），且内部的页是连续的（至少在虚拟内存的视角中是这样），mspan会根据存储的对象大小分为约70种class，同等级的mspan会通过链表链接，基于bitMap 辅助快速找到空闲内存块，每个bit代表一个object块:每个 bit 对应一页，为 0 则自由，为 1 则已被 mspan 组装.同时，建立空闲页基数树索引 radix tree index，辅助快速寻找空闲页
 
-mspan本身是off-heap的，由fixalloc分配，但他管理的对象时on-heap的。GC每次free span时，并不会直接归还操作系统，而是会尝试复用，将其放入当前P的mspancache时，下次就不需要再调用fixalloc再走一遍分配了。
+mspan本身是off-heap的，由fixalloc分配，但他管理的对象是on-heap的。GC每次free span时，并不会直接归还操作系统，而是会尝试复用，将其放入当前P的mspancache时，下次就不需要再调用fixalloc再走一遍分配了。
 
 ### 结构及状态
 每个mspan都在一个双向链表里，不管是在mheap的busy list还是在mcentral的span list。
@@ -183,6 +183,7 @@ mheap结构体中储存了三个重要信息：
 无指针的情况，（优化GC，整个tiny block 只有在所有对象都不可达时才回收，GC不用去内部扫描指针）
 1. <16B mallocgcTiny()
 2. 16B-32KB 调用mallocgcSmallNoscan
+
 有指针的情况
 1. 对于小对象，调用mallocgcSmallScanNoHeader，将类型信息存储在span的heap bits中
 2. 对于大对象(!heapBitsInSpan(size))，调用mallocgcSmallScanHeader，将类型信息存储在对象的头部
@@ -232,8 +233,6 @@ refill：
 这个span有可能是还需要清理的旧span。对象根据传入的参数决定是在分配时进行清理还是由调用者清理。若在分配时进行清理，小对象立即进行清理，同时为了避免大对象清理过慢，采取分块的模式进行清理，且在不同块清理期间允许被抢占。
 
 由于上一步分配了一些scav，所以可能需要清理空间以满足memory limit和heap space limit，调用pages.scavenge来清理。
-
-
 
 #### allocLarge
 mallocLarge 绕过 mcache 和 mcentral缓存的span，直接调用 c.allocLarge
